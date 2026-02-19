@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "market_radar_cli"
+version = "0.1.0"
+description = "HeadHunter vacancies fetcher CLI"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+]
+
+[project.scripts]
+market-radar = "market_radar_cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

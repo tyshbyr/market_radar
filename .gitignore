@@ -30,7 +30,7 @@ wheels/
 *.swo
 
 # Output files
-vacancies_*.csv
+*vacancies_*.csv
 vacancies_*.json
 
 #MacOS

@@ -54,13 +54,18 @@ Creates a CSV file: `vacancies_<yyyy-mm-dd>_<query-slug>.csv`
 
 Example: `vacancies_2026-02-20_python-backend.csv`
 
-**CSV columns:** `id`, `title`, `description`
+**CSV columns:** `id`, `title`, `description`, `key_skills`
+
+- `id` — HH vacancy ID
+- `title` — Vacancy title/name
+- `description` — Vacancy description (HTML cleaned to plain text)
+- `key_skills` — Key skills from the vacancy (semicolon-separated, empty if not specified by employer)
 
 **Example output (first 3 lines):**
 ```csv
-id,title,description
-130622182,Backend Developer (Python),"АО САПРО — это компания, занимающаяся разработкой...
-130540433,Стажер Backend Developer (Python / DRF),"We are looking for a Python developer...
+id,title,description,key_skills
+130622182,Backend Developer (Python),"АО САПРО — это компания, занимающаяся разработкой...","Python; Django; PostgreSQL; Git"
+130540433,Стажер Backend Developer (Python / DRF),"We are looking for a Python developer...","Python; FastAPI; Docker"
 ```
 
 ## Project Structure

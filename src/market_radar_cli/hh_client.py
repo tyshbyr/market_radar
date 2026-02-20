@@ -124,49 +124,63 @@ def clean_html(html_text: str | None) -> str:
 def fetch_all_vacancies(query: str, area: int, limit: int) -> list[dict[str, str]]:
     """
     Fetch vacancies with pagination up to the specified limit.
-    
+
     Args:
         query: Search query text
         area: Area ID
         limit: Maximum number of vacancies to fetch
-    
+
     Returns:
-        List of vacancy dicts with id, title, description
+        List of vacancy dicts with id, title, description, key_skills
     """
     vacancies = []
     page = 0
     per_page = min(limit, 100)  # HH API max per_page is 100
-    
+
     logger.info(f"Starting to fetch {limit} vacancies for query: '{query}'")
-    
+
     while len(vacancies) < limit:
         data = fetch_vacancies_list(query, area, page, per_page)
         items = data.get("items", [])
-        
+
         if not items:
             logger.info("No more vacancies available")
             break
-        
+
         for item in items:
             if len(vacancies) >= limit:
                 break
-            
+
             vacancy_id = item.get("id")
             if not vacancy_id:
                 continue
-            
+
             try:
                 detail = fetch_vacancy_detail(vacancy_id)
+                
+                # Extract key_skills if available (HH API field)
+                key_skills_list = detail.get("key_skills", [])
+                key_skills = ""
+                if key_skills_list and isinstance(key_skills_list, list):
+                    # Extract skill names and join with semicolon
+                    skill_names = [
+                        skill.get("name", "")
+                        for skill in key_skills_list
+                        if isinstance(skill, dict) and skill.get("name")
+                    ]
+                    key_skills = "; ".join(skill_names) if skill_names else ""
+                
                 vacancy = {
                     "id": vacancy_id,
                     "title": detail.get("name", ""),
-                    "description": clean_html(detail.get("description"))
+                    "description": clean_html(detail.get("description")),
+                    "key_skills": key_skills
                 }
                 vacancies.append(vacancy)
                 logger.info(f"Fetched {len(vacancies)}/{limit} vacancies")
             except HHAPIError as e:
                 logger.warning(f"Skipping vacancy {vacancy_id}: {e}")
-        
+
         # Check if there are more pages
         # HH API returns 'pages' as integer (total pages count)
         total_pages = data.get("pages", 1)
@@ -174,10 +188,10 @@ def fetch_all_vacancies(query: str, area: int, limit: int) -> list[dict[str, str
             total_pages = total_pages.get("pages", 1)
         if page + 1 >= total_pages:
             break
-        
+
         page += 1
         time.sleep(0.5)  # Rate limiting
-    
+
     logger.info(f"Successfully fetched {len(vacancies)} vacancies")
     return vacancies
 
@@ -199,7 +213,11 @@ def save_to_csv(vacancies: list[dict[str, str]], query: str) -> str:
     filename = f"vacancies_{date_str}_{slug}.csv"
     
     with open(filename, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["id", "title", "description"], quoting=csv.QUOTE_MINIMAL)
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["id", "title", "description", "key_skills"],
+            quoting=csv.QUOTE_MINIMAL
+        )
         writer.writeheader()
         writer.writerows(vacancies)
     

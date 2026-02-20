@@ -24,8 +24,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--query", "-q",
         type=str,
-        default="python backend",
-        help="Search query text (default: 'python backend')"
+        default="python backend OR python developer",
+        help="Search query text (default: 'python backend OR python developer')"
     )
     
     parser.add_argument(

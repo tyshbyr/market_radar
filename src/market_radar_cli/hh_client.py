@@ -44,6 +44,7 @@ def fetch_vacancies_list(query: str, area: int, page: int, per_page: int) -> dic
     params = {
         "text": query,
         "area": area,
+        "search_field": "name",
         "page": page,
         "per_page": per_page
     }
